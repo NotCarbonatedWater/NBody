@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+
 import java.util.Scanner;
 
 import javax.swing.JFrame;
@@ -73,7 +74,7 @@ public class NBody extends JPanel implements ActionListener {
      */
     private static final long serialVersionUID = -9015211243192660708L;
 
-    Timer tm = new Timer(5, this);
+    Timer tm = new Timer(1, this);
     int x = 0, velX = 2;
     static int NUM_OF_BODIES = 0;
     static int FRAME_WIDTH = 768;
@@ -86,9 +87,9 @@ public class NBody extends JPanel implements ActionListener {
         g.setColor(Color.RED);
 
         for (int i = 0; i < NUM_OF_BODIES; i++) {
-            int tmpx = (int) Float.parseFloat(A1.get(2 + (i * 7)));
-            int tmpy = (int) Float.parseFloat(A1.get(3 + (i * 7)));
             int bodySize = (int) Float.parseFloat(A1.get(6 + (i * 7)));
+            int tmpx = (int) Float.parseFloat(A1.get(2 + (i * 7))) - (bodySize / 2);
+            int tmpy = (int) Float.parseFloat(A1.get(3 + (i * 7))) - (bodySize / 2);
             g.fillOval(tmpx, tmpy, bodySize, bodySize);
         }
 
@@ -97,16 +98,45 @@ public class NBody extends JPanel implements ActionListener {
 
     public static void runPhyics() {
         for (int i = 0; i < NUM_OF_BODIES; i++) {
+            Float tmpMass = Float.parseFloat(A1.get(1 + (i * 7)));
             Float tmpx = Float.parseFloat(A1.get(2 + (i * 7)));
             Float tmpy = Float.parseFloat(A1.get(3 + (i * 7)));
             Float tmpVx = Float.parseFloat(A1.get(4 + (i * 7)));
             Float tmpVy = Float.parseFloat(A1.get(5 + (i * 7)));
+            int bodySize = (int) Float.parseFloat(A1.get(6 + (i * 7)));
 
-            A1.replace(2 + (i * 7), Float.toString(tmpx + tmpVx));
-            A1.replace(3 + (i * 7), Float.toString(tmpy + tmpVy));
-            A1.replace(4 + (i * 7), Float.toString(tmpVx));
-            A1.replace(5 + (i * 7), Float.toString(tmpVy));
+            // freezes if out of bounds //
+            if ((tmpx + bodySize > 0) && (tmpx - bodySize < FRAME_WIDTH) && (tmpy + bodySize > 0)
+                    && (tmpy - bodySize < FRAME_HEIGHT)) {
 
+                // F = G (m*m)/r^2
+                Float f = 0.0f; // force x
+                Float r = 0.0f; // distance
+
+                for (int j = 0; j < NUM_OF_BODIES; j++) {
+                    r = 0.0f; // distance
+                    if (j != i) {
+                        // calculates distance //
+                        Float otherx = Float.parseFloat(A1.get(2 + (j * 7)));
+                        Float othery = Float.parseFloat(A1.get(3 + (j * 7)));
+
+                        // A^2 + B^2 = C^2
+                        r += (float) Math.pow(tmpx - otherx, 2);
+                        r += (float) Math.pow(tmpy - othery, 2);
+                        r = (float) Math.sqrt(r); // == C
+
+                        Float otherMass = Float.parseFloat(A1.get(1 + (j * 7)));
+                        f += ((0.0000000000667f * tmpMass * otherMass) / (float) Math.pow(r, 2));
+                        System.out.println("FORCE: " + f);
+                    }
+                }
+
+                // push updated values to list //
+                A1.replace(2 + (i * 7), Float.toString(tmpx + tmpVx + f));
+                A1.replace(3 + (i * 7), Float.toString(tmpy + tmpVy + f));
+                A1.replace(4 + (i * 7), Float.toString(tmpVx));
+                A1.replace(5 + (i * 7), Float.toString(tmpVy));
+            }
         }
         System.out.println("ARRAY LIST IN PHYSICS");
         for (int i = 0; i < A1.size(); i++)
