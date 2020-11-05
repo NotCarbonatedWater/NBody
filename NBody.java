@@ -30,6 +30,7 @@ class ArrayList<E> {
     }
 
     void add(E item) {
+        // grow list //
         if (size == currentLen()) {
             Object arrTmp[] = new Object[size];
             for (int i = 0; i < size; i++)
@@ -68,6 +69,7 @@ class ArrayList<E> {
 }
 
 class LinkedList<E> {
+    // setup //
     private static int size;
     private Node head;
 
@@ -102,20 +104,19 @@ class LinkedList<E> {
         public void setNext(Node n) {
             next = n;
         }
-
     }
 
     public int size() {
         return size;
     }
 
+    // add to end of list //
     public void add(Object data) {
-
-        // if infront
-        if (head == null) {
+        // if infront //
+        if (head == null)
             head = new Node(data);
-        }
 
+        // else //
         Node temp = new Node(data);
         Node curr = head;
 
@@ -128,27 +129,31 @@ class LinkedList<E> {
         size++;
     }
 
-    public void add(Object data, int index) {
+    // add to specific pos //
+    public void add(Object data, int pos) {
         Node temp = new Node(data);
         Node curr = head;
 
+        // find position //
         if (curr != null)
-            for (int i = 0; i < index && curr.getNext() != null; i++)
+            for (int i = 0; i < pos && curr.getNext() != null; i++)
                 curr = curr.getNext();
 
+        // store at position //
         temp.setNext(curr.getNext());
         curr.setNext(temp);
         size++;
     }
 
     @SuppressWarnings("unchecked")
-    public E get(int index) {
-        if (index < 0)
+    public E get(int pos) {
+        if (pos < 0) // error checker //
             return null;
+        // returns value at pos//
         Node curr = null;
         if (head != null) {
             curr = head.getNext();
-            for (int i = 0; i < index; i++) {
+            for (int i = 0; i < pos; i++) {
                 if (curr.getNext() == null)
                     return null;
                 curr = curr.getNext();
@@ -158,12 +163,15 @@ class LinkedList<E> {
         return (E) curr;
     }
 
-    public boolean remove(int index) {
-        if (index < 1 || index > size())
+    // remove at position //
+    public boolean remove(int pos) {
+        // safety net //
+        if (pos < 1 || pos > size())
             return false;
         Node curr = head;
+        // remove at pos //
         if (head != null) {
-            for (int i = 0; i < index; i++) {
+            for (int i = 0; i < pos; i++) {
                 if (curr.getNext() == null)
                     return false;
                 curr = curr.getNext();
@@ -175,6 +183,7 @@ class LinkedList<E> {
         return false;
     }
 
+    // remove and add at position //
     public void replace(int pos, Object data) {
         remove(pos);
         add(data, pos);
@@ -182,30 +191,26 @@ class LinkedList<E> {
 }
 
 public class NBody extends JPanel implements ActionListener {
-
-    /**
-     *
-     */
+    // Visual Code Error override //
     private static final long serialVersionUID = -9015211243192660708L;
 
-    Timer tm = new Timer(1, this);
-
+    // global set up //
+    Timer tm = new Timer(5, this);
     static int NUM_OF_BODIES = 0;
-    static int FRAME_WIDTH = 768;
-    static int FRAME_HEIGHT = 768;
-
+    static int FRAME_WIDTH = 768; // JFrame //
+    static int FRAME_HEIGHT = 768; // JFrame //
     static Boolean ArrayL = false;
     static Boolean linkL = false;
-
     static ArrayList<String> AL = new ArrayList<String>();
     static LinkedList<String> LL = new LinkedList<String>();
 
+    // circle painter calculator //
     @Override // Signature Visual Code Error //
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.setColor(Color.RED);
-
         if (ArrayL)
+            // sets up every body position and size //
             for (int i = 0; i < NUM_OF_BODIES; i++) {
                 int bodySize = (int) Float.parseFloat(AL.get(6 + (i * 7)));
                 int tmpx = (int) Float.parseFloat(AL.get(2 + (i * 7))) - (bodySize / 2);
@@ -213,6 +218,7 @@ public class NBody extends JPanel implements ActionListener {
                 g.fillOval(tmpx, tmpy, bodySize, bodySize);
             }
         if (linkL)
+            // sets up every body position and size //
             for (int i = 0; i < NUM_OF_BODIES; i++) {
                 int bodySize = (int) Float.parseFloat(LL.get(6 + (i * 7)));
                 int tmpx = (int) Float.parseFloat(LL.get(2 + (i * 7))) - (bodySize / 2);
@@ -222,7 +228,9 @@ public class NBody extends JPanel implements ActionListener {
         tm.start();
     }
 
+    // does physics math for Array Lists //
     public static void runPhyicsAL() {
+        // creates temp values to do math with forces //
         for (int i = 0; i < NUM_OF_BODIES; i++) {
             Float tmpMass = Float.parseFloat(AL.get(1 + (i * 7)));
             Float tmpx = Float.parseFloat(AL.get(2 + (i * 7)));
@@ -239,6 +247,7 @@ public class NBody extends JPanel implements ActionListener {
                 Float f = 0.0f; // force x
                 Float r = 0.0f; // distance
 
+                // does math for each planet except for current //
                 for (int j = 0; j < NUM_OF_BODIES; j++) {
                     r = 0.0f; // distance
                     if (j != i) {
@@ -251,9 +260,9 @@ public class NBody extends JPanel implements ActionListener {
                         r += (float) Math.pow(tmpy - othery, 2);
                         r = (float) Math.sqrt(r); // == C
 
+                        // calculates forces from all bodies
                         Float otherMass = Float.parseFloat(AL.get(1 + (j * 7)));
                         f += ((0.0000000000667f * tmpMass * otherMass) / (float) Math.pow(r, 2));
-                        System.out.println("FORCE: " + f);
                     }
                 }
 
@@ -264,12 +273,11 @@ public class NBody extends JPanel implements ActionListener {
                 AL.replace(5 + (i * 7), Float.toString(tmpVy));
             }
         }
-        System.out.println("ARRAY LIST IN PHYSICS");
-        for (int i = 0; i < AL.size(); i++)
-            System.out.print(AL.get(i) + "\n");
     }
 
+    // does physics math for Linked Lists //
     public static void runPhyicsLL() {
+        // creates temp values to do math with forces //
         for (int i = 0; i < NUM_OF_BODIES; i++) {
             Float tmpMass = Float.parseFloat(LL.get(1 + (i * 7)));
             Float tmpx = Float.parseFloat(LL.get(2 + (i * 7)));
@@ -286,6 +294,7 @@ public class NBody extends JPanel implements ActionListener {
                 Float f = 0.0f; // force x
                 Float r = 0.0f; // distance
 
+                // does math for each planet except for current //
                 for (int j = 0; j < NUM_OF_BODIES; j++) {
                     r = 0.0f; // distance
                     if (j != i) {
@@ -298,9 +307,9 @@ public class NBody extends JPanel implements ActionListener {
                         r += (float) Math.pow(tmpy - othery, 2);
                         r = (float) Math.sqrt(r); // == C
 
+                        // calculates forces from all bodies
                         Float otherMass = Float.parseFloat(LL.get(1 + (j * 7)));
                         f += ((0.0000000000667f * tmpMass * otherMass) / (float) Math.pow(r, 2));
-                        System.out.println("FORCE: " + f);
                     }
                 }
 
@@ -311,17 +320,15 @@ public class NBody extends JPanel implements ActionListener {
                 LL.replace(5 + (i * 7), Float.toString(tmpVy));
             }
         }
-        System.out.println("ARRAY LIST IN PHYSICS");
-        for (int i = 0; i < LL.size(); i++)
-            System.out.print(LL.get(i) + "\n");
     }
 
     public void actionPerformed(ActionEvent e) {
+        // does physic math for which ever list type choosen //
         if (ArrayL)
             runPhyicsAL();
         if (linkL)
             runPhyicsLL();
-        repaint();
+        repaint(); // updates frames //
     }
 
     public static void runFrame() {
@@ -335,71 +342,53 @@ public class NBody extends JPanel implements ActionListener {
         jf.add(n);
     }
 
+    // if array list choosen - then store in array list //
     public static void runArrayList(float scale, Scanner fileIn) {
-        runFrame();
-
+        runFrame(); // starts j frame set up //
+        // takes file and add it to list //
         while (fileIn.hasNext()) {
             String tmp = fileIn.next();
-            String[] commaRid = tmp.split(",");
+            String[] commaRid = tmp.split(","); // removes commas before adding //
             for (int i = 0; i < commaRid.length; i++)
                 AL.add(commaRid[i]);
         }
-        for (int i = 0; i < AL.size(); i++)
-            System.out.print(AL.get(i) + "\n");
-        for (int i = 0; i < AL.size(); i++)
-            System.out.print(AL.get(i) + "\n");
-
-        System.out.println("\n\n" + (AL.size / 7));
         NUM_OF_BODIES = (AL.size / 7);
     }
 
+    // if linked list choosen - then store in linked list //
     public static void runLinkedList(float scale, Scanner fileIn) {
-        runFrame();
-
+        runFrame();// starts j frame set up //
+        // takes file and add it to list //
         while (fileIn.hasNext()) {
             String tmp = fileIn.next();
             String[] commaRid = tmp.split(",");
             for (int i = 0; i < commaRid.length; i++)
                 LL.add(commaRid[i]);
         }
-        for (int i = 0; i < LL.size(); i++)
-            System.out.print(LL.get(i) + "\n");
-        for (int i = 0; i < LL.size(); i++)
-            System.out.print(LL.get(i) + "\n");
-
-        System.out.println("\n\n" + (LL.size() / 7));
         NUM_OF_BODIES = (LL.size() / 7);
     }
 
     public static void main(String[] argv) throws FileNotFoundException {
         // file reader start//
-        // loads file //
 
-        // terminal switch: //
-        // Scanner fileIn = new Scanner(new File(argv[0]));
-        // VS CODE Switch: // nbody_input.txt
-        File file = new File("nbody_input.txt");
-        Scanner fileIn = new Scanner(file);
+        // loads file //
+        Scanner fileIn = new Scanner(new File(argv[0]));
 
         // reads data structure type //
         String dataStruct = fileIn.nextLine();
-        System.out.println(dataStruct);
 
         // sets scale //
         float scale = Float.parseFloat(fileIn.nextLine());
-        System.out.println("Does it work: " + scale);
 
         // sets data structure type //
         if (dataStruct.equals("ArrayList")) {
-            System.out.println("ArrayList - found");
             ArrayL = true;
             runArrayList(scale, fileIn);
         } else if (dataStruct.equals("LinkedList")) {
-            System.out.println("LinkedList - found");
             linkL = true;
             runLinkedList(scale, fileIn);
         } else {
-            System.out.println("Error in txt file - found");
+            System.out.println("Error in txt file given");
         }
         fileIn.close();
         // file reader end //
